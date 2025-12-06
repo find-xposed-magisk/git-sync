@@ -1,0 +1,113 @@
+# GoReleaser configuration for git-sync
+# git-sync 的 GoReleaser 配置
+#
+# Usage / 使用方法:
+#   goreleaser check           # Validate config / 验证配置
+#   goreleaser release --snapshot --clean  # Local test / 本地测试
+#   git tag v2.0.0 && git push origin v2.0.0  # Trigger release / 触发发布
+
+version: 2
+
+project_name: git-sync
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: git-sync
+    main: ./cmd/git-autosync
+    binary: git-sync
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    # Exclude windows/arm64 as it's less common
+    # 排除 windows/arm64 因为较少使用
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - id: default
+    format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    # Use zip for windows
+    # Windows 使用 zip 格式
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: Features / 新功能
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug fixes / 修复
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Performance / 性能
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: Others / 其他
+      order: 999
+
+release:
+  github:
+    owner: find-xposed-magisk
+    name: git-sync
+  # Draft release for review before publishing
+  # 草稿发布，发布前可审查
+  draft: false
+  # Mark as prerelease if version contains alpha/beta/rc
+  # 如果版本包含 alpha/beta/rc 则标记为预发布
+  prerelease: auto
+  name_template: "{{.ProjectName}} v{{.Version}}"
+  header: |
+    ## Git Sync {{.Version}}
+    
+    High-performance Git auto-sync tool written in Go.
+    高性能 Go 语言实现的 Git 自动同步工具。
+  footer: |
+    ---
+    
+    **Full Changelog**: https://github.com/find-xposed-magisk/git-sync/compare/{{ .PreviousTag }}...{{ .Tag }}
+    
+    **Installation / 安装:**
+    ```bash
+    # Linux/macOS
+    tar -xzf git-sync_{{.Version}}_<os>_<arch>.tar.gz
+    chmod +x git-sync
+    sudo mv git-sync /usr/local/bin/
+    
+    # Verify installation / 验证安装
+    git-sync -version
+    ```

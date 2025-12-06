@@ -1,0 +1,171 @@
+# Git Ignore File
+# Created by: Agent-Gpt-Astra-Pro
+# 中英双语注释，覆盖常见场景。
+# Bilingual comments, covering common scenarios.
+
+docs/
+
+# ==============================================================================
+# 0. 项目特定忽略 (Project-Specific Ignores)
+# ==============================================================================
+# 特殊仓库的 git 目录结构 (用于子仓库管理)。
+# Special repository git directory structures (for subrepo management).
+gitdir/
+gitdir.tar
+.git.local/
+.git*/
+# 例外: 保留 .github 目录（CI/CD 工作流）
+# Exception: Keep .github directory (CI/CD workflows)
+!.github/
+
+# PromptX 配置目录。
+# PromptX configuration directory.
+.promptx/
+AGENTS.md
+
+# VS Code 工作区。
+# VS Code workspace.
+.vscode/
+.windsurf/
+openspec/
+
+
+# 编译产物 / Build artifacts
+git-autosync
+# git-autosync-static
+*.exe
+
+# Go 模块缓存 / Go module cache
+go.sum
+
+# 测试覆盖率 / Test coverage
+coverage.out
+coverage.html
+*.coverprofile
+
+# 日志输出 / Log output (运行时生成)
+/var/log/git-autosync/
+# 1. 临时文件和日志 (Temporary Files & Logs)
+# ==============================================================================
+# 忽略所有 .log, .tmp, 和 .temp 文件。
+# Ignore all .log, .tmp, and .temp files.
+*.log
+*.tmp
+*.temp
+
+
+# ==============================================================================
+# 2. 缓存文件和目录 (Cache Files & Directories)
+# ==============================================================================
+# 通用缓存目录 (大小写不敏感)。
+# General cache directories (case-insensitive).
+
+# 匹配 cache, Cache, CACHE 等
+# Matches cache, Cache, CACHE etc.
+[Cc]ache/
+**/[Cc]ache/
+.[Cc]ache/
+**/*[Cc]ache*/
+
+# __pycache__ 通常总是小写，但为了严谨也可以加上
+# __pycache__ is almost always lowercase, but we can be explicit for robustness.
+**/__pycache__/
+**/*[Pp][Yy][Cc][Aa][Cc][Hh][Ee]*/
+
+# 
+!.git_sync_cache
+
+# Python 工具缓存。
+# Python tool caches.
+.pytest_cache/
+.mypy_cache/
+.pytype/
+.tox/
+
+
+# 3. 虚拟环境和依赖包 (Virtual Environments & Dependencies)
+# ==============================================================================
+# Python 虚拟环境。
+# Python virtual environments.
+venv/
+.venv/
+env/
+.env/
+ENV/
+pyenv/
+sh-env/
+*.egg-info/
+
+# Node.js 依赖包。
+# Node.js dependencies.
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Java / Maven / Gradle 构建产物和依赖。
+# Java / Maven / Gradle build outputs and dependencies.
+target/
+.gradle/
+build/
+*.class
+
+# Ruby / Bundler.
+.bundle/
+vendor/bundle/
+
+# Go.
+vendor/
+
+
+# 4. IDE 和编辑器配置 (IDE & Editor Configurations)
+# ==============================================================================
+# JetBrains IDEs (IntelliJ, PyCharm, WebStorm, etc).
+.idea/
+
+# Visual Studio Code.
+# 允许团队共享设置，但忽略用户本地状态。
+# Allow sharing team settings, but ignore user-local state.
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Visual Studio.
+.vs/
+*.suo
+*.user
+
+
+# 5. 操作系统生成的文件 (OS Generated Files)
+# ==============================================================================
+# macOS.
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows.
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+
+# 6. 构建和分发产物 (Build & Distribution Artifacts)
+# ==============================================================================
+# dist/
+dist-packages/
+*.egg
+*.whl
+*.pyc
+
+
+# 7. 敏感信息文件 (Sensitive Information Files)
+# ==============================================================================
+# !! 绝对不要提交包含密码、密钥或其他机密信息的文件 !!
+# !! NEVER commit files with passwords, API keys, or other secrets !!
+.env
+# .env.local
+# .env.*.local
+secrets.yml
+credentials.json
+
