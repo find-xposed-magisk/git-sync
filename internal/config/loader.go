@@ -315,6 +315,15 @@ func applyConfigValue(cfg *Config, key, value string, lineNum int) bool {
 			return false
 		}
 
+	// 远程引用修复配置 / Remote reference repair configuration
+	case "auto_fix_corrupt_refs":
+		if v, err := strconv.ParseBool(value); err == nil {
+			cfg.AutoFixCorruptRefs = v
+		} else {
+			logParseError(key, value, lineNum, cfg.AutoFixCorruptRefs)
+			return false
+		}
+
 	default:
 		fmt.Printf("[WARN] 未知配置项 / Unknown config key at line %d: %s\n", lineNum, key)
 		return false
