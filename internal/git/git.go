@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/find-xposed-magisk/git-sync/internal/config"
@@ -202,11 +203,48 @@ func (g *GitOps) Fetch() error {
 	return err
 }
 
-// Push 推送到远程
-// Pushes to remote
+// parseCorruptRefError 解析损坏引用错误，返回损坏的引用路径列表
+// Parses corrupt reference error, returns list of corrupt ref paths
+func parseCorruptRefError(errMsg string) []string {
+	re := regexp.MustCompile(`bad object (refs/[^\s]+)`)
+	var matches []string
+	for _, match := range re.FindAllStringSubmatch(errMsg, -1) {
+		if len(match) > 1 {
+			matches = append(matches, match[1])
+		}
+	}
+	return matches
+}
+
+// Push 推送到远程（含自动修复损坏引用）
+// Pushes to remote (with auto-fix for corrupt references)
 func (g *GitOps) Push() error {
 	g.logger.Debug("正在推送到远程 / Pushing to remote")
 	_, err := g.execGitCommand("push", g.cfg.RemoteName, g.cfg.BranchName)
+	if err == nil || !g.cfg.AutoFixCorruptRefs {
+		return err
+	}
+
+	// 尝试修复损坏引用后重试
+	// Try to fix corrupt refs and retry
+	corruptRefs := parseCorruptRefError(err.Error())
+	if len(corruptRefs) == 0 {
+		return err
+	}
+
+	g.logger.Warn("检测到 %d 个损坏的远程引用，尝试自动修复 / Detected %d corrupt remote refs, auto-fixing", len(corruptRefs), len(corruptRefs))
+	fixed := false
+	for _, ref := range corruptRefs {
+		if _, delErr := g.execGitCommand("push", g.cfg.RemoteName, ":"+ref); delErr == nil {
+			g.logger.Info("  ✓ 已删除损坏引用 / Deleted corrupt ref: %s", ref)
+			fixed = true
+		}
+	}
+
+	if fixed {
+		g.logger.Info("重试推送 / Retrying push")
+		_, err = g.execGitCommand("push", g.cfg.RemoteName, g.cfg.BranchName)
+	}
 	return err
 }
 

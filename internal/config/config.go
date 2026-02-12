@@ -78,8 +78,11 @@ type Config struct {
 	BatchRetryBaseDelay   time.Duration // 批量操作重试基础延迟 / Base delay for batch retry
 
 	// 合并配置 / Merge configuration
-	MergeLogLines      int // 合并日志显示行数 / Lines to show in merge log
-	MaxBackupBranches  int // 最大备份分支数量 / Max backup branches to keep
+	MergeLogLines      int  // 合并日志显示行数 / Lines to show in merge log
+	MaxBackupBranches  int  // 最大备份分支数量 / Max backup branches to keep
+
+	// 远程引用修复配置 / Remote reference repair configuration
+	AutoFixCorruptRefs bool // 自动修复远程损坏引用 / Auto-fix corrupt remote references
 }
 
 // DefaultConfig 返回默认配置
@@ -156,6 +159,9 @@ func DefaultConfig() *Config {
 		// 合并配置 / Merge configuration
 		MergeLogLines:     10, // 显示10行合并日志
 		MaxBackupBranches: 5,  // 最多保留5个备份分支
+
+		// 远程引用修复配置 / Remote reference repair configuration
+		AutoFixCorruptRefs: true, // 默认启用自动修复 / Default enabled
 	}
 }
 
